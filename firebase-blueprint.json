@@ -1,0 +1,94 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user statistics and profile info",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "photoURL": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "gamesPlayed": {
+          "type": "integer"
+        },
+        "gamesWon": {
+          "type": "integer"
+        },
+        "bestWPM": {
+          "type": "number"
+        },
+        "averageWPM": {
+          "type": "number"
+        },
+        "averageAccuracy": {
+          "type": "number"
+        },
+        "totalCharsTyped": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "uid",
+        "displayName",
+        "createdAt"
+      ]
+    },
+    "Room": {
+      "title": "Typing Race Room",
+      "description": "Represents a multiplayer typing room",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "startTime": {
+          "type": "string"
+        },
+        "countdown": {
+          "type": "integer"
+        },
+        "players": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "status",
+        "createdAt",
+        "players"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles and stats"
+    },
+    "/rooms/{roomId}": {
+      "schema": "Room",
+      "description": "Typing race rooms"
+    }
+  }
+}

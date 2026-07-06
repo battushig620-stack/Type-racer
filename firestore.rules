@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Users ---
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUser(request.resource.data);
+      allow update: if isSignedIn() && request.auth.uid == userId && isValidUser(request.resource.data);
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'createdAt'])
+        && data.uid == request.auth.uid
+        && data.displayName is string
+        && data.displayName.size() <= 100
+        && (data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 500))
+        && (data.email == null || (data.email is string && data.email.size() <= 100))
+        && (data.gamesPlayed == null || (data.gamesPlayed is int && data.gamesPlayed >= 0))
+        && (data.gamesWon == null || (data.gamesWon is int && data.gamesWon >= 0))
+        && (data.bestWPM == null || (data.bestWPM is number && data.bestWPM >= 0))
+        && (data.averageWPM == null || (data.averageWPM is number && data.averageWPM >= 0))
+        && (data.averageAccuracy == null || (data.averageAccuracy is number && data.averageAccuracy >= 0))
+        && (data.totalCharsTyped == null || (data.totalCharsTyped is int && data.totalCharsTyped >= 0));
+    }
+
+    // --- Rooms ---
+    match /rooms/{roomId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(roomId) && isValidRoom(request.resource.data);
+      allow update: if isSignedIn() && isValidId(roomId) && isValidRoomUpdate();
+      allow delete: if false; // Rooms cannot be deleted by users
+    }
+
+    function isValidRoom(data) {
+      return data.keys().hasAll(['id', 'text', 'status', 'createdAt', 'players'])
+        && data.id == roomId
+        && data.text is string
+        && data.text.size() <= 5000
+        && data.status in ['waiting', 'starting', 'active', 'finished']
+        && data.players is map;
+    }
+
+    function isValidRoomUpdate() {
+      // Allow authenticated users to perform real-time room state updates
+      return request.auth != null && request.resource.data.status in ['waiting', 'starting', 'active', 'finished'];
+    }
+  }
+}

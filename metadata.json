@@ -1,0 +1,6 @@
+{
+  "name": "TypeClash",
+  "description": "A highly polished real-time multiplayer typing race game where users can play online or with bots, view live WPMs, climb global leaderboards, and track career stats.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
